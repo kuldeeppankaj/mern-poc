@@ -7,7 +7,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UserRole } from '../users/schemas/user.schema';
+import { UserRole } from '../roles/roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +32,6 @@ export class AuthService {
   }
 
   async login(user: any) {
-    // common user response (never expose password)
     const userDetails = {
       id: user._id,
       name: user.name,
@@ -41,8 +40,8 @@ export class AuthService {
       status: user.status,
     };
 
-    // ADMIN → return token + user
-    if (user.role === 'ADMIN') {
+    // Admin → return access_token
+    if (user.role === UserRole.ADMIN) {
       const payload = {
         sub: user._id,
         email: user.email,
@@ -55,8 +54,9 @@ export class AuthService {
       };
     }
 
-    // CUSTOMER → return only user details
+    // Customer login
     return {
+      message: 'Login successful',
       user: userDetails,
     };
   }
@@ -80,4 +80,5 @@ export class AuthService {
       user: safeUser,
     };
   }
+
 }
